@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {BsSearch} from "react-icons/bs";
+import { BsSearch } from "react-icons/bs";
+import Weather from './components/Weather';
 
 interface WeatherData {
   name: string;
@@ -24,36 +25,86 @@ interface WeatherData {
 }
 
 export default function Home() {
-  const [city, setCity] = useState('');
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const url = `https://api.openweathermap.org/data/2.5/weather?units=imperial&q=${city}&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY}`;
+  const [weatherToday, setWeatherToday] = useState<WeatherData | null>(null);
+  const [weatherTomorrow, setWeatherTomorrow] = useState(null);
 
-  async function fetchWeather(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  async function fetchWeather(e: React.FormEvent) {
     e.preventDefault();
 
-    try {
-      const response = await fetch(url);
+    const form: EventTarget = e.target;
+    const formData = new FormData(form);
+    const formJson = Object.fromEntries(formData.entries());
+    const city = formJson.weatherInput.toString();
 
+    await fetchToday(city);
+    await fetchTomorrow(city);
+  }
+
+  async function fetchToday(city: string) {
+    try {
+      const url = `https://api.openweathermap.org/data/2.5/weather?units=imperial&q=${city}&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY}`;
+
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data: WeatherData = await response.json();
-      console.log(data);
-      setWeather(data);
+      setWeatherToday(data);
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      console.error("Error fetching today's data:", error);
     }
   }
 
-  function capitalize(words: string) {
-    return words.split(' ')
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
+  async function fetchTomorrow(city: string) {
+    try {
+      const url = `https://api.openweathermap.org/data/2.5/forecast?units=imperial&q=${city}&cnt=${8}&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY}`;
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const forecast = data.list.map(l => {
+        const date = new Date(l.dt * 1000);
+        const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+        const time = date.toLocaleTimeString([], options);
+        const temperature = l.main.temp.toFixed(0);
+        const { icon, description } = l.weather[0];
+
+        return { time, temperature, icon, description, };
+      });
+      setWeatherTomorrow(forecast);
+    } catch (error) {
+      console.error("Error fetching tomorrow's data:", error);
+    }
   }
 
+  function capitalize(words: string | undefined) {
+    if (words) {
+      return words.split(' ')
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+    }
+  }
+
+  function getWeatherInfo(day: 'today' | 'tomorrow') {
+    const data = day === 'today' ? weatherToday : weatherTomorrow;
+    if (!data) return null;
+
+    const name = data.name;
+    const description = capitalize(data.weather[0].description);
+    const temperature = data.main.temp.toFixed(0);
+    const humidity = data.main.humidity.toFixed(0);
+
+    return {day, name, description, temperature, humidity,}
+  }
+
+  const today = getWeatherInfo('today');
+
   return (
-    <main className="flex flex-col justify-between items-center w-full px-8 py-16">
+    <main className="flex flex-col justify-between items-center w-full px-8 py-16 z-[10] h-full">
       {/* overlay */}
       <div className="absolute top-0 right-0 left-0 bottom-0 bg-black/60 z-[1]" />
       <Image
@@ -66,29 +117,16 @@ export default function Home() {
 
       {/* search */}
       <div className="relative flex justify-between items-center z-[10] mt-4">
-        <form className="flex justify-between items-center w-full bg-white p-3 bg-transparent border border-gray-300 text-white rounded-2xl">
-          <input className="w-full bg-transparent border-none text-white focus:outline-none text-2xl" type="text" placeholder="Search City" onChange={(e) => setCity(e.target.value)}></input>
-          <button onClick={fetchWeather}>
+        <form onSubmit={fetchWeather} className="flex justify-between items-center w-full p-3 bg-transparent border border-gray-300 text-white rounded-2xl">
+          <input className="w-full bg-transparent border-none text-white focus:outline-none text-2xl" type="text" placeholder="Search City" name="weatherInput"></input>
+          <button type="submit">
             <BsSearch size={24} />
           </button>
         </form>
       </div>
 
-      {weather && (
-        <div className="relative flex flex-col justify-between items-center mt-20 z-[10]">
-          <div className="text-white text-6xl text-center font-bold">{weather.name}</div>
-          <div className="text-white text-4xl mt-4">{capitalize(weather.weather[0].description)}</div>
-          <div className="flex justify-around w-80 mt-20">
-            <div className="flex flex-col justify-center items-center text-white">
-              <div className="text-5xl font-bold">{weather.main.temp.toFixed(0)}&deg;</div>
-              <p className="text-lg">Temperature</p>
-            </div>
-            <div className="flex flex-col justify-center items-center text-white">
-              <div className="text-5xl font-bold">{weather.main.humidity.toFixed(0)}%</div>
-              <p className="text-lg">Humidity</p>
-            </div>
-          </div>
-        </div>
+      {today && weatherTomorrow && (
+        <Weather data={today} forecast={weatherTomorrow} />
       )}
     </main>
   );

@@ -6,6 +6,9 @@ const nextConfig = {
         remotePatterns: [
             {
                 hostname: 'plus.unsplash.com'
+            },
+            {
+                hostname: 'openweathermap.org'
             }
         ]
     }
