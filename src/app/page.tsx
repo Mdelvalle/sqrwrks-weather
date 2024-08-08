@@ -4,30 +4,11 @@ import { useState } from "react";
 import Image from "next/image";
 import { BsSearch } from "react-icons/bs";
 import Weather from './components/Weather';
-
-interface WeatherData {
-  dt: number;
-  name: string;
-  main: {
-    temp: number;
-    temp_max: number;
-    temp_min: number;
-    feels_like: number;
-    humidity: number;
-  };
-  weather: {
-    description: string;
-    icon: string;
-  }[];
-  wind: {
-    speed: number;
-    deg: number;
-  };
-}
+import { WeatherData, ForecastData } from './types/weatherTypes';
 
 export default function Home() {
   const [weatherToday, setWeatherToday] = useState<WeatherData | null>(null);
-  const [weatherTomorrow, setWeatherTomorrow] = useState(null);
+  const [weatherTomorrow, setWeatherTomorrow] = useState<ForecastData[] | null>(null);
 
   async function fetchWeather(e: React.FormEvent) {
     e.preventDefault();
@@ -69,10 +50,10 @@ export default function Home() {
       }
 
       const data = await response.json();
-      const forecast = data.list.map((l: WeatherData) => {
+      const forecast: ForecastData[] = data.list.map((l: WeatherData) => {
         const date = new Date(l.dt * 1000);
         const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-        const time = date.toLocaleTimeString([], options);
+        const time = date.toLocaleTimeString([], options).split(' ')[0];
         const temperature = l.main.temp.toFixed(0);
         const { icon, description } = l.weather[0];
 
@@ -92,8 +73,7 @@ export default function Home() {
     }
   }
 
-  function getWeatherInfo(day: 'today' | 'tomorrow') {
-    const data = day === 'today' ? weatherToday : weatherTomorrow;
+  function getWeatherInfo(data: WeatherData | null) {
     if (!data) return null;
 
     const name = data.name;
@@ -101,10 +81,10 @@ export default function Home() {
     const temperature = data.main.temp.toFixed(0);
     const humidity = data.main.humidity.toFixed(0);
 
-    return {day, name, description, temperature, humidity,}
+    return { name, description, temperature, humidity, }
   }
 
-  const today = getWeatherInfo('today');
+  const weatherNow = getWeatherInfo(weatherToday);
 
   return (
     <main className="flex flex-col justify-between items-center w-full px-8 py-16 z-[10] h-full">
@@ -128,8 +108,8 @@ export default function Home() {
         </form>
       </div>
 
-      {today && weatherTomorrow && (
-        <Weather data={today} forecast={weatherTomorrow} />
+      {weatherNow && weatherTomorrow && (
+        <Weather data={weatherNow} forecast={weatherTomorrow} />
       )}
     </main>
   );

@@ -1,24 +1,9 @@
 import React from 'react';
-import Image from "next/image";
-
-interface WeatherProps {
-    data: {
-      day: string;
-      name: string | undefined;
-      description: string | undefined;
-      temperature: string | undefined;
-      humidity: string | undefined;
-    };
-    forecast: {
-        time: string;
-        temperature: string;
-        icon: string;
-        description: string;
-    }[];
-}
+import Image from 'next/image';
+import { WeatherProps } from '../types/weatherTypes';
 
 function Weather({ data, forecast }: WeatherProps) {
-    const {day, name, description, temperature, humidity} = data;
+    const {name, description, temperature, humidity} = data;
 
     return (
         <div className="relative flex flex-col justify-between items-center w-full md:w-[500px] mt-20 py-8 z-[10] backdrop-blur-sm bg-white/10 rounded-2xl">
@@ -38,7 +23,7 @@ function Weather({ data, forecast }: WeatherProps) {
             <div className='flex items-center space-x-3 mt-14 w-full overflow-x-auto px-4'>
                 {forecast.map((f, i) => (
                     <div key={i} className='flex flex-col flex-nowrap justify-center items-center backdrop-blur-sm bg-white/20 rounded-2xl p-3'>
-                        <p className=' text-white w-full'>{f.time.split(' ')[0]}</p>
+                        <p className=' text-white w-full'>{f.time}</p>
                         <Image
                             src={`https://openweathermap.org/img/wn/${f.icon}@2x.png`}
                             alt={`${f.description}`}
