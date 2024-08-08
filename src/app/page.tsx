@@ -6,6 +6,7 @@ import { BsSearch } from "react-icons/bs";
 import Weather from './components/Weather';
 
 interface WeatherData {
+  dt: number;
   name: string;
   main: {
     temp: number;
@@ -31,7 +32,7 @@ export default function Home() {
   async function fetchWeather(e: React.FormEvent) {
     e.preventDefault();
 
-    const form: EventTarget = e.target;
+    const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
     const formJson = Object.fromEntries(formData.entries());
     const city = formJson.weatherInput.toString();
@@ -51,6 +52,8 @@ export default function Home() {
 
       const data: WeatherData = await response.json();
       setWeatherToday(data);
+
+      // TODO: save user action to DB
     } catch (error) {
       console.error("Error fetching today's data:", error);
     }
@@ -66,9 +69,9 @@ export default function Home() {
       }
 
       const data = await response.json();
-      const forecast = data.list.map(l => {
+      const forecast = data.list.map((l: WeatherData) => {
         const date = new Date(l.dt * 1000);
-        const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+        const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
         const time = date.toLocaleTimeString([], options);
         const temperature = l.main.temp.toFixed(0);
         const { icon, description } = l.weather[0];
