@@ -1,14 +1,17 @@
-'use client'
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import { BsSearch } from "react-icons/bs";
-import Weather from './components/Weather';
-import { WeatherData, ForecastData } from './types/weatherTypes';
+import Weather from "./components/Weather";
+import { WeatherData, ForecastData } from "./types/weatherTypes";
+import utils from "./utils";
 
 export default function Home() {
   const [weatherToday, setWeatherToday] = useState<WeatherData | null>(null);
-  const [weatherTomorrow, setWeatherTomorrow] = useState<ForecastData[] | null>(null);
+  const [weatherTomorrow, setWeatherTomorrow] = useState<ForecastData[] | null>(
+    null,
+  );
 
   async function fetchWeather(e: React.FormEvent) {
     e.preventDefault();
@@ -42,7 +45,9 @@ export default function Home() {
 
   async function fetchTomorrow(city: string) {
     try {
-      const url = `https://api.openweathermap.org/data/2.5/forecast?units=imperial&q=${city}&cnt=${8}&appid=${process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY}`;
+      const url = `https://api.openweathermap.org/data/2.5/forecast?units=imperial&q=${city}&cnt=${8}&appid=${
+        process.env.NEXT_PUBLIC_OPEN_WEATHER_API_KEY
+      }`;
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -52,12 +57,16 @@ export default function Home() {
       const data = await response.json();
       const forecast: ForecastData[] = data.list.map((l: WeatherData) => {
         const date = new Date(l.dt * 1000);
-        const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-        const time = date.toLocaleTimeString([], options).split(' ')[0];
+        const options: Intl.DateTimeFormatOptions = {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        };
+        const time = date.toLocaleTimeString([], options).split(" ")[0];
         const temperature = l.main.temp.toFixed(0);
         const { icon, description } = l.weather[0];
 
-        return { time, temperature, icon, description, };
+        return { time, temperature, icon, description };
       });
       setWeatherTomorrow(forecast);
     } catch (error) {
@@ -65,43 +74,32 @@ export default function Home() {
     }
   }
 
-  function capitalize(words: string | undefined) {
-    if (words) {
-      return words.split(' ')
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
-    }
-  }
-
-  function getWeatherInfo(data: WeatherData | null) {
-    if (!data) return null;
-
-    const name = data.name;
-    const description = capitalize(data.weather[0].description);
-    const temperature = data.main.temp.toFixed(0);
-    const humidity = data.main.humidity.toFixed(0);
-
-    return { name, description, temperature, humidity, }
-  }
-
-  const weatherNow = getWeatherInfo(weatherToday);
+  const weatherNow = utils.getWeatherInfo(weatherToday);
 
   return (
-    <main className="flex flex-col justify-between items-center w-full px-8 py-16 z-[10] h-full">
+    <main className="z-[10] flex h-full w-full flex-col items-center justify-between px-8 py-16">
       {/* overlay */}
-      <div className="absolute top-0 right-0 left-0 bottom-0 bg-black/60 z-[1]" />
+      <div className="absolute bottom-0 left-0 right-0 top-0 z-[1] bg-black/60" />
       <Image
         src="https://plus.unsplash.com/premium_photo-1675344576121-81e305536fd3?q=80&w=2942&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         alt="Canopy of trees changing color"
         fill
-        style={{objectFit:"cover"}}
+        style={{ objectFit: "cover" }}
         className="object-cover"
       />
 
       {/* search */}
-      <div className="relative flex justify-between items-center z-[10] mt-4">
-        <form onSubmit={fetchWeather} className="flex justify-between items-center w-full p-3 bg-transparent border border-gray-300 text-white rounded-2xl">
-          <input className="w-full bg-transparent border-none text-white focus:outline-none text-2xl" type="text" placeholder="Search City" name="weatherInput"></input>
+      <div className="relative z-[10] mt-4 flex items-center justify-between">
+        <form
+          onSubmit={fetchWeather}
+          className="flex w-full items-center justify-between rounded-2xl border border-gray-300 bg-transparent p-3 text-white"
+        >
+          <input
+            className="w-full border-none bg-transparent text-2xl text-white focus:outline-none"
+            type="text"
+            placeholder="Search City"
+            name="weatherInput"
+          ></input>
           <button type="submit">
             <BsSearch size={24} />
           </button>
