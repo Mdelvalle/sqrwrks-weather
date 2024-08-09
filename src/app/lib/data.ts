@@ -2,6 +2,7 @@
 
 import { sql } from "@vercel/postgres";
 import { searchWeatherData } from "../types/weatherTypes";
+import { unstable_noStore as noStore } from "next/cache";
 
 export async function updateWeatherSearches(search: searchWeatherData) {
   try {
@@ -30,6 +31,7 @@ export async function updateWeatherSearches(search: searchWeatherData) {
 
 export async function fetchMostPopular() {
   try {
+    noStore();
     const result = await sql`
         SELECT
             search_query, COUNT(*) as search_count
@@ -52,6 +54,7 @@ export async function fetchMostPopular() {
 
 export async function fetchMostActiveTimes() {
   try {
+    noStore();
     const result = await sql`
         SELECT
             DATE_PART('hour', search_time) AS hour_of_day,
