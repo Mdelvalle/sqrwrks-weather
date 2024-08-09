@@ -36,9 +36,16 @@ function getWeatherInfo(data: WeatherData | null) {
   return { name, description, temperature, humidity };
 }
 
+function formatHour(hour: number): string {
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const hourFormatted = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hourFormatted}:00 ${ampm}`;
+}
+
 const utils = {
   getWeatherInfo,
   getWeatherForecast,
+  formatHour,
 };
 
 export default utils;

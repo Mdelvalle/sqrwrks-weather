@@ -11,6 +11,7 @@ import {
 } from "./types/weatherTypes";
 import utils from "./utils";
 import { updateWeatherSearches } from "./lib/data";
+import Link from "next/link";
 
 export default function Home() {
   const [searchError, setsearchError] = useState<string | null>(null);
@@ -86,7 +87,7 @@ export default function Home() {
   const weatherNow = utils.getWeatherInfo(weatherToday);
 
   return (
-    <main className="z-[10] flex h-full w-full flex-col items-center justify-between px-8 py-16">
+    <main className="z-[10] flex h-screen w-full flex-col items-center justify-start px-8 py-16">
       {/* overlay */}
       <div className="absolute bottom-0 left-0 right-0 top-0 z-[1] bg-black/60" />
       <Image
@@ -96,6 +97,16 @@ export default function Home() {
         style={{ objectFit: "cover" }}
         className="object-cover"
       />
+
+      {/* link to analytics */}
+      <div className="absolute left-0 top-0 z-[10] ml-2 mt-3">
+        <Link
+          href="/analytics"
+          className="rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 px-2 py-1"
+        >
+          Analytics
+        </Link>
+      </div>
 
       {/* search */}
       <div className="relative z-[10] mt-4 flex flex-col items-center justify-between">
