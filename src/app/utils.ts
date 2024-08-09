@@ -9,6 +9,22 @@ function capitalize(words: string | undefined) {
   }
 }
 
+function getWeatherForecast(list: WeatherData[]) {
+  return list.map((l: WeatherData) => {
+    const date = new Date(l.dt * 1000);
+    const options: Intl.DateTimeFormatOptions = {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    };
+    const time = date.toLocaleTimeString([], options).split(" ")[0];
+    const temperature = l.main.temp.toFixed(0);
+    const { icon, description } = l.weather[0];
+
+    return { time, temperature, icon, description };
+  });
+}
+
 function getWeatherInfo(data: WeatherData | null) {
   if (!data) return null;
 
@@ -22,6 +38,7 @@ function getWeatherInfo(data: WeatherData | null) {
 
 const utils = {
   getWeatherInfo,
+  getWeatherForecast,
 };
 
 export default utils;

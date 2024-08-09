@@ -18,19 +18,29 @@ export type WeatherData = {
   };
 };
 
+export type searchWeatherData = {
+  search_query: string | undefined;
+  search_time: number;
+  description: string | undefined;
+  temperature: string | undefined;
+  humidity: string | undefined;
+};
+
+export type NormalizedWeatherData = {
+  name: string | undefined;
+  description: string | undefined;
+  temperature: string | undefined;
+  humidity: string | undefined;
+};
+
 export type ForecastData = {
   time: string;
-  temperature: number;
+  temperature: string;
   icon: string;
   description: string;
 };
 
 export type WeatherProps = {
-  data: {
-    name: string | undefined;
-    description: string | undefined;
-    temperature: string | undefined;
-    humidity: string | undefined;
-  };
+  data: NormalizedWeatherData;
   forecast: ForecastData[];
 };

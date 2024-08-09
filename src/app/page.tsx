@@ -4,10 +4,16 @@ import { useState } from "react";
 import Image from "next/image";
 import { BsSearch } from "react-icons/bs";
 import Weather from "./components/Weather";
-import { WeatherData, ForecastData } from "./types/weatherTypes";
+import {
+  WeatherData,
+  ForecastData,
+  searchWeatherData,
+} from "./types/weatherTypes";
 import utils from "./utils";
+import { updateWeatherSearches } from "./lib/data";
 
 export default function Home() {
+  const [searchError, setsearchError] = useState<string | null>(null);
   const [weatherToday, setWeatherToday] = useState<WeatherData | null>(null);
   const [weatherTomorrow, setWeatherTomorrow] = useState<ForecastData[] | null>(
     null,
@@ -21,8 +27,12 @@ export default function Home() {
     const formJson = Object.fromEntries(formData.entries());
     const city = formJson.weatherInput.toString();
 
-    await fetchToday(city);
-    await fetchTomorrow(city);
+    if (city) {
+      await fetchToday(city);
+      await fetchTomorrow(city);
+    } else {
+      setsearchError("City cannot be empty.");
+    }
   }
 
   async function fetchToday(city: string) {
@@ -31,15 +41,26 @@ export default function Home() {
 
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! ${response.statusText}`);
       }
-
       const data: WeatherData = await response.json();
       setWeatherToday(data);
+      setsearchError(null);
 
-      // TODO: save user action to DB
+      // Save user action to DB
+      const { name, description, temperature, humidity } =
+        utils.getWeatherInfo(data) || {};
+      const searchInfo: searchWeatherData = {
+        search_query: name,
+        search_time: data.dt,
+        description,
+        temperature,
+        humidity,
+      };
+      await updateWeatherSearches(searchInfo);
     } catch (error) {
       console.error("Error fetching today's data:", error);
+      setsearchError("City not found. Check the spelling.");
     }
   }
 
@@ -55,19 +76,7 @@ export default function Home() {
       }
 
       const data = await response.json();
-      const forecast: ForecastData[] = data.list.map((l: WeatherData) => {
-        const date = new Date(l.dt * 1000);
-        const options: Intl.DateTimeFormatOptions = {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        };
-        const time = date.toLocaleTimeString([], options).split(" ")[0];
-        const temperature = l.main.temp.toFixed(0);
-        const { icon, description } = l.weather[0];
-
-        return { time, temperature, icon, description };
-      });
+      const forecast: ForecastData[] = utils.getWeatherForecast(data.list);
       setWeatherTomorrow(forecast);
     } catch (error) {
       console.error("Error fetching tomorrow's data:", error);
@@ -89,7 +98,7 @@ export default function Home() {
       />
 
       {/* search */}
-      <div className="relative z-[10] mt-4 flex items-center justify-between">
+      <div className="relative z-[10] mt-4 flex flex-col items-center justify-between">
         <form
           onSubmit={fetchWeather}
           className="flex w-full items-center justify-between rounded-2xl border border-gray-300 bg-transparent p-3 text-white"
@@ -104,6 +113,11 @@ export default function Home() {
             <BsSearch size={24} />
           </button>
         </form>
+
+        {/* error */}
+        {searchError && (
+          <p className="p-y1 mt-2 px-3 text-lg text-red-500">{searchError}</p>
+        )}
       </div>
 
       {weatherNow && weatherTomorrow && (
