@@ -4,6 +4,8 @@ import Link from "next/link";
 import { BsArrowLeft } from "react-icons/bs";
 import utils from "../utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function page() {
   const mostPopular = await fetchMostPopular();
   const mostActiveTimes = await fetchMostActiveTimes();
