@@ -1,0 +1,81 @@
+const searches = [
+  {
+    search_query: "McAllen",
+    search_time: 1723173969,
+    description: "Clear Sky",
+    temperature: 86,
+    humidity: 75,
+  },
+  {
+    search_query: "Austin",
+    search_time: 1723173602,
+    description: "Clear Sky",
+    temperature: 89,
+    humidity: 59,
+  },
+  {
+    search_query: "Dallas",
+    search_time: 1723173726,
+    description: "Few Clouds",
+    temperature: 93,
+    humidity: 54,
+  },
+  {
+    search_query: "Houston",
+    search_time: 1723174045,
+    description: "Scattered Clouds",
+    temperature: 89,
+    humidity: 68,
+  },
+  {
+    search_query: "Miami",
+    search_time: 1723174094,
+    description: "Broken Clouds",
+    temperature: 85,
+    humidity: 77,
+  },
+  {
+    search_query: "New York",
+    search_time: 1723173778,
+    description: "Mist",
+    temperature: 71,
+    humidity: 95,
+  },
+  {
+    search_query: "Boston",
+    search_time: 1723174136,
+    description: "Overcast Clouds",
+    temperature: 64,
+    humidity: 92,
+  },
+  {
+    search_query: "Seattle",
+    search_time: 1723174028,
+    description: "Smoke",
+    temperature: 64,
+    humidity: 92,
+  },
+  {
+    search_query: "San Francisco",
+    search_time: 1723174555,
+    description: "Few Clouds",
+    temperature: 57,
+    humidity: 91,
+  },
+  {
+    search_query: "Los Angeles",
+    search_time: 1723174649,
+    description: "Few Clouds",
+    temperature: 72,
+    humidity: 69,
+  },
+  {
+    search_query: "San Diego",
+    search_time: 1723174889,
+    description: "Few Clouds",
+    temperature: 70,
+    humidity: 83,
+  },
+];
+
+export { searches };
