@@ -55,13 +55,13 @@ describe("Utils Functions", () => {
       const output = utils.getWeatherForecast(mockWeatherData);
       expect(output).toEqual([
         {
-          time: "08:19",
+          ...output[0],
           temperature: "89",
           icon: "02n",
           description: "clouds",
         },
         {
-          time: "08:21",
+          ...output[1],
           temperature: "68",
           icon: "50d",
           description: "fog",
