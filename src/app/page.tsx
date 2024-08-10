@@ -84,6 +84,7 @@ export default function Home() {
     }
   }
 
+  // Prepare data for Weather component
   const weatherNow = utils.getWeatherInfo(weatherToday);
 
   return (
@@ -131,6 +132,7 @@ export default function Home() {
         )}
       </div>
 
+      {/* weather data */}
       {weatherNow && weatherTomorrow && (
         <Weather data={weatherNow} forecast={weatherTomorrow} />
       )}
