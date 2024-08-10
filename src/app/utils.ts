@@ -43,6 +43,7 @@ function formatHour(hour: number): string {
 }
 
 const utils = {
+  capitalize,
   getWeatherInfo,
   getWeatherForecast,
   formatHour,

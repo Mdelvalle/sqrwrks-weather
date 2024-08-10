@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { BsSearch } from "react-icons/bs";
-import Weather from "./components/Weather";
+import Weather from "./components/weather";
 import {
   WeatherData,
   ForecastData,
